@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -45,9 +46,13 @@ func (s *Server) Init() {
 	}
 	s.dbClient = dbClient
 
+	port := fmt.Sprintf(":%s", os.Getenv("PORT"))
+	if len(port) == 1 {
+		port = ":8080"
+	}
 	//server
 	http.Handle("/ws", websocket.Handler(s.HandleServer))
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(port, nil)
 
 }
 
