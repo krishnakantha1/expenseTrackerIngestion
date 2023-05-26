@@ -29,9 +29,9 @@ func NewServer() *Server {
 
 func (s *Server) Init() {
 
-	err := godotenv.Load()
+	err := godotenv.Load("")
 	if err != nil {
-		log.Fatal("Error loading .env file", err)
+		//log.Fatal("Error loading .env file", err)
 	}
 
 	dbUrl := os.Getenv("DB_URL")
