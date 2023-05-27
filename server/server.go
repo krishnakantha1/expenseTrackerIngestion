@@ -6,10 +6,10 @@ import (
 	"log"
 	"net/http"
 
-	//"net/http"
 	"os"
 
 	"github.com/joho/godotenv"
+	//"github.com/rs/cors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/net/websocket"
@@ -30,7 +30,7 @@ func NewServer() *Server {
 
 func (s *Server) Init() {
 
-	err := godotenv.Load("")
+	err := godotenv.Load()
 	if err != nil {
 		//log.Fatal("Error loading .env file", err)
 	}
@@ -50,8 +50,22 @@ func (s *Server) Init() {
 	if len(port) == 1 {
 		port = ":8080"
 	}
-	//server
-	http.Handle("/ws", websocket.Handler(s.HandleServer))
+	// //cors
+	// c := cors.New(cors.Options{
+	// 	AllowedOrigins:   []string{"*"}, // Allow all origins
+	// 	AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+	// 	AllowedHeaders:   []string{"Origin", "Accept", "Content-Type", "X-Requested-With", "Authorization"},
+	// 	AllowCredentials: true,
+	// })
+	// //server
+	// handler := websocket.Handler(s.HandleServer)
+
+	http.HandleFunc("/ws", func(w http.ResponseWriter, req *http.Request) {
+		ser := websocket.Server{
+			Handler: websocket.Handler(s.HandleServer),
+		}
+		ser.ServeHTTP(w, req)
+	})
 	http.ListenAndServe(port, nil)
 
 }
