@@ -2,6 +2,7 @@ package apihandler
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -24,6 +25,8 @@ func HandleLogin(db *mongo.Client, w http.ResponseWriter, r *http.Request) {
 		util.BadRequestResponse(w, "issue while reading the data provided in body.")
 		return
 	}
+
+	fmt.Println(reqBody)
 
 	//get user details from database
 	userData := da.GetUserDetail(db, reqBody.Email)
