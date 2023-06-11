@@ -3,9 +3,21 @@ package server
 import (
 	"fmt"
 	"io"
+	"net/http"
 
 	"golang.org/x/net/websocket"
 )
+
+func (s *Server) handleWebsocketRequest() {
+
+	http.HandleFunc("/ws", func(w http.ResponseWriter, req *http.Request) {
+		ser := websocket.Server{
+			Handler: websocket.Handler(s.HandleServer),
+		}
+		ser.ServeHTTP(w, req)
+	})
+
+}
 
 func (s *Server) HandleServer(ws *websocket.Conn) {
 	fmt.Println("new incomming connection from client:", ws.RemoteAddr())
