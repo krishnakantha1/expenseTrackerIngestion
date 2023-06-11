@@ -18,6 +18,8 @@ func HandleLogin(db *mongo.Client, w http.ResponseWriter, r *http.Request) {
 	//get Data from request body
 	reqBody := t.LoginRequest{}
 
+	now := time.Now()
+
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&reqBody)
 
@@ -26,12 +28,19 @@ func HandleLogin(db *mongo.Client, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Println(reqBody)
+	log.Printf("data extracted from req : %v", time.Since(now))
+	now = time.Now()
 
 	//get user details from database
 	userData := da.GetUserDetail(db, reqBody.Email)
 
+	log.Printf("mongo lookup done : %v", time.Since(now))
+	now = time.Now()
+
 	isValidPassword := util.CheckHashedPassword(reqBody.Password, userData.Password)
+
+	log.Printf("checked password with hash : %v", time.Since(now))
+	now = time.Now()
 
 	if !isValidPassword {
 		util.BadRequestResponse(w, "username or password dosent exist.")
@@ -39,6 +48,9 @@ func HandleLogin(db *mongo.Client, w http.ResponseWriter, r *http.Request) {
 	}
 
 	jwt, err := util.EncodeJWT(userData)
+
+	log.Printf("data encoded to jwt : %v", time.Since(now))
+	now = time.Now()
 
 	if err != nil {
 		util.BadRequestResponse(w, "Issue with JWT creation.")
@@ -51,6 +63,8 @@ func HandleLogin(db *mongo.Client, w http.ResponseWriter, r *http.Request) {
 		JWT:      jwt,
 	}
 	json.NewEncoder(w).Encode(resp)
+
+	log.Printf("data encoded : %v", time.Since(now))
 }
 
 // http handler for servicing user register request
