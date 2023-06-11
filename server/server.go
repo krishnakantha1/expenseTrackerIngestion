@@ -49,7 +49,7 @@ func (s *Server) Init() {
 		port = ":8080"
 	}
 
-	log.Println("server started on port", port)
+	log.Println("--server started on port", port)
 
 	s.handleWebsocketRequest()
 	s.handleRestApiRequest()
