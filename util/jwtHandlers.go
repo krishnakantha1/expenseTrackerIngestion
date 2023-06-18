@@ -43,7 +43,11 @@ func EncodeJWT(userData *t.UserData) (string, error) {
 func DecodeJWT(jwtString string) (*t.UserData, error) {
 	claims := t.JWTClaims{}
 
+	log.Println(jwtString)
+
 	token, err := jwt.ParseWithClaims(jwtString, claims, keyFunc)
+
+	log.Println(claims)
 
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
