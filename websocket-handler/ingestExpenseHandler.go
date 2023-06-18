@@ -93,7 +93,8 @@ func IngestExpenseReadLoop(db *mongo.Client, ws *websocket.Conn) {
 		case STATE_READ_ENTRY:
 			if event == CLIENT_READ_ENTRY {
 				log.Println("in client read", curCount, msg)
-				expenseMessages[curCount] = util.ParseExpenseMessaeg(msg)
+				expenseMessages = append(expenseMessages, util.ParseExpenseMessaeg(msg))
+
 				ws.Write([]byte(fmt.Sprintf("%s %d", ACK_READ_ENTRY, curCount)))
 				curCount++
 
