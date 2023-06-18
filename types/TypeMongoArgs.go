@@ -23,3 +23,8 @@ type InsertOneArgs struct {
 	MongoArgs
 	Data any
 }
+
+type UpsertAllArgs struct {
+	MongoArgs
+	SingleTransaction []map[string]bson.M
+}

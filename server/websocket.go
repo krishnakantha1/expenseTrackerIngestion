@@ -2,47 +2,33 @@ package server
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 
+	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/net/websocket"
+
+	wsh "github.com/krishnakantha1/expenseTrackerIngestion/websocket-handler"
 )
+
+type WSHandlerFunc func(*mongo.Client, *websocket.Conn)
 
 func (s *Server) handleWebsocketRequest() {
 
-	http.HandleFunc("/ws", func(w http.ResponseWriter, req *http.Request) {
+	http.HandleFunc("/ws/ingestExpenses", func(w http.ResponseWriter, req *http.Request) {
 		ser := websocket.Server{
-			Handler: websocket.Handler(s.HandleServer),
+			Handler: websocket.Handler(s.handleRequest(wsh.IngestExpenseReadLoop)),
 		}
 		ser.ServeHTTP(w, req)
 	})
 
 }
 
-func (s *Server) HandleServer(ws *websocket.Conn) {
-	fmt.Println("new incomming connection from client:", ws.RemoteAddr())
+func (s *Server) handleRequest(f WSHandlerFunc) websocket.Handler {
 
-	//s.conns[ws] = true
+	return func(ws *websocket.Conn) {
 
-	s.ReadLoop(ws)
-}
+		fmt.Println("new incomming connection from client:", ws.RemoteAddr())
 
-func (s *Server) ReadLoop(ws *websocket.Conn) {
-	buf := make([]byte, 2048)
-	defer ws.Close()
-
-	for {
-		n, err := ws.Read(buf)
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			fmt.Println("malformed message", err)
-			return
-		}
-		msg := string(buf[:n])
-		fmt.Println(msg)
-
-		ws.Write([]byte("great! got your message"))
+		f(s.dbClient, ws)
 	}
 }

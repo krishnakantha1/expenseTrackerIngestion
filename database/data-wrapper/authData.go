@@ -1,4 +1,4 @@
-package dataaccess
+package datawrapper
 
 import (
 	"go.mongodb.org/mongo-driver/bson"
@@ -6,7 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
-	mongoDB "github.com/krishnakantha1/expenseTrackerIngestion/database/mongo-db"
+	da "github.com/krishnakantha1/expenseTrackerIngestion/database/data-access"
 	t "github.com/krishnakantha1/expenseTrackerIngestion/types"
 )
 
@@ -27,7 +27,7 @@ func GetUserDetail(db *mongo.Client, email string) *t.UserData {
 		DecodeInto: userDataAddr,
 	}
 
-	mongoDB.SelectOne(&args)
+	da.SelectOne(&args)
 
 	return userDataAddr
 }
@@ -42,7 +42,7 @@ func SaveUserDetails(db *mongo.Client, user *t.UserModel) (primitive.ObjectID, e
 		Data: user,
 	}
 
-	ID, err := mongoDB.InsertOne(&args)
+	ID, err := da.InsertOne(&args)
 
 	return ID, err
 }

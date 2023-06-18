@@ -8,7 +8,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/mongo"
 
-	da "github.com/krishnakantha1/expenseTrackerIngestion/database/data-access"
+	dw "github.com/krishnakantha1/expenseTrackerIngestion/database/data-wrapper"
 	t "github.com/krishnakantha1/expenseTrackerIngestion/types"
 	util "github.com/krishnakantha1/expenseTrackerIngestion/util"
 )
@@ -32,7 +32,7 @@ func HandleLogin(db *mongo.Client, w http.ResponseWriter, r *http.Request) {
 	now = time.Now()
 
 	//get user details from database
-	userData := da.GetUserDetail(db, reqBody.Email)
+	userData := dw.GetUserDetail(db, reqBody.Email)
 
 	log.Printf("mongo lookup done : %v", time.Since(now))
 	now = time.Now()
@@ -94,7 +94,7 @@ func HandleRegister(db *mongo.Client, w http.ResponseWriter, r *http.Request) {
 		AesTest:   reqBody.AesTest,
 	}
 
-	ID, err := da.SaveUserDetails(db, &userModel)
+	ID, err := dw.SaveUserDetails(db, &userModel)
 
 	if err != nil {
 		util.BadRequestResponse(w, err.Error())
