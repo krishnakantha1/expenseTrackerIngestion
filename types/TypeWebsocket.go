@@ -9,7 +9,7 @@ type ExpsenseEntry struct {
 	URI             string `json:"uri"`
 	Bank            string `json:"bank"`
 	EncryptedAmount string `json:"encryptedAmount"`
-	ExpenseDate     string `json:"expenseData_long"`
+	ExpenseDate     int64  `json:"expenseData_long"`
 	ExpenseType     string `json:"expenseType"`
 	ExpenseTag      string `json:"tag"`
 }

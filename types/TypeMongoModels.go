@@ -26,7 +26,8 @@ type ExpsenseModel struct {
 	URI             string             `bson:"uri"`
 	Bank            string             `bson:"bank"`
 	AmountEncrypted string             `bson:"amount_encrypted"`
-	ExpenseDate     string             `bson:"expense_date"`
+	ExpenseDate     time.Time          `bson:"expense_date"`
+	UpdatedOn       time.Time          `bson:"updated_on"`
 	ExpenseType     string             `bson:"expense_type"`
 	ExpenseTag      string             `bson:"tag"`
 }

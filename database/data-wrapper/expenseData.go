@@ -2,6 +2,7 @@ package datawrapper
 
 import (
 	"log"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -29,7 +30,8 @@ func UpsertExpenseMessages(db *mongo.Client, expenseMessages []*t.ExpenseMessage
 			URI:             em.ExpsenseEntry.URI,
 			Bank:            em.ExpsenseEntry.Bank,
 			AmountEncrypted: em.ExpsenseEntry.EncryptedAmount,
-			ExpenseDate:     em.ExpsenseEntry.ExpenseDate,
+			ExpenseDate:     time.Unix(em.ExpsenseEntry.ExpenseDate, 0),
+			UpdatedOn:       time.Now(),
 			ExpenseType:     em.ExpsenseEntry.ExpenseType,
 			ExpenseTag:      em.ExpsenseEntry.ExpenseTag,
 		})
@@ -38,8 +40,10 @@ func UpsertExpenseMessages(db *mongo.Client, expenseMessages []*t.ExpenseMessage
 	for i, em := range expsenseModels {
 		args.SingleTransaction = append(args.SingleTransaction, make(map[string]bson.M))
 
-		args.SingleTransaction[i]["updateValues"] = bson.M{"$set": bson.M{"user_id": em.UserID, "uri": em.URI, "bank": em.Bank, "amount_encrypted": em.AmountEncrypted,
-			"expense_date": em.ExpenseDate, "expense_type": em.ExpenseType, "tag": em.ExpenseTag}}
+		args.SingleTransaction[i]["updateValues"] = bson.M{"$set": bson.M{"user_id": em.UserID, "uri": em.URI,
+			"bank": em.Bank, "amount_encrypted": em.AmountEncrypted,
+			"expense_date": em.ExpenseDate, "updated_on": em.UpdatedOn,
+			"expense_type": em.ExpenseType, "tag": em.ExpenseTag}}
 
 		args.SingleTransaction[i]["filter"] = bson.M{"user_id": em.UserID, "uri": em.URI}
 	}
