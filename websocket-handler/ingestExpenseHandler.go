@@ -110,6 +110,7 @@ func IngestExpenseReadLoop(db *mongo.Client, ws *websocket.Conn) {
 
 		case STATE_SAVE_DONE:
 			if event == ACK_SAVE_DONE {
+				log.Println("save ack by client")
 				return
 			} else {
 				util.HandleStateMisMatch(ws)

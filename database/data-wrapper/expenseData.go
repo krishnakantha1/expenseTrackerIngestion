@@ -1,6 +1,8 @@
 package datawrapper
 
 import (
+	"log"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -42,6 +44,7 @@ func UpsertExpenseMessages(db *mongo.Client, expenseMessages []*t.ExpenseMessage
 		args.SingleTransaction[i]["filter"] = bson.M{"user_id": em.UserID, "uri": em.URI}
 	}
 
-	da.UpsertAll(&args)
+	count, err := da.UpsertAll(&args)
 
+	log.Println("saved : ", count, "err : ", err)
 }

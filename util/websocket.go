@@ -11,7 +11,14 @@ import (
 )
 
 func ParseEvent(str string) string {
-	return str[:strings.Index(str, " ")]
+	len := len(str)
+	space := strings.Index(str, " ")
+
+	if space != -1 {
+		len = space
+	}
+
+	return str[:len]
 }
 
 func ParseUser(message string) (*t.UserData, error) {

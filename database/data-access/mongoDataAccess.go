@@ -51,7 +51,7 @@ func UpsertAll(args *t.UpsertAllArgs) (int64, error) {
 	result, err := collection.BulkWrite(context.Background(), bulk, bulkWriteOptions)
 
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
 
 	return result.InsertedCount + result.UpsertedCount, nil
