@@ -30,7 +30,7 @@ func UpsertExpenseMessages(db *mongo.Client, expenseMessages []*t.ExpenseMessage
 			URI:             em.ExpsenseEntry.URI,
 			Bank:            em.ExpsenseEntry.Bank,
 			AmountEncrypted: em.ExpsenseEntry.EncryptedAmount,
-			ExpenseDate:     time.Unix(em.ExpsenseEntry.ExpenseDate, 0),
+			ExpenseDate:     time.Unix(0, em.ExpsenseEntry.ExpenseDate),
 			UpdatedOn:       time.Now(),
 			ExpenseType:     em.ExpsenseEntry.ExpenseType,
 			ExpenseTag:      em.ExpsenseEntry.ExpenseTag,
