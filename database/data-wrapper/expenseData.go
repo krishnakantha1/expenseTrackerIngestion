@@ -63,6 +63,11 @@ func UpsertExpenseMessages(db *mongo.Client, expenseMessages []*t.ExpenseMessage
 		argsInsert.SingleTransaction = append(argsInsert.SingleTransaction, bson.D{{Key: "sms", Value: em.RawMessage.Raw}})
 	}
 
-	_, err := da.InsertAll(&argsInsert)
-	log.Println("err : ", err.Error())
+	count, err := da.InsertAll(&argsInsert)
+	if err != nil {
+		log.Println("err : ", err.Error())
+	}
+
+	log.Println("--- count :", count)
+
 }
