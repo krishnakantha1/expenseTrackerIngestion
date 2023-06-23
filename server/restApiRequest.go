@@ -16,9 +16,8 @@ func (s *Server) handleRestApiRequest() {
 	http.HandleFunc("/api/login", s.handleRequestWithVerb(h.HandleLogin, http.MethodPost))
 	http.HandleFunc("/api/register", s.handleRequestWithVerb(h.HandleRegister, http.MethodPost))
 
-	//data ingestion end points
-
 	//data providing end points
+	http.HandleFunc("/api/month", s.handleRequestWithVerb(h.HandleGetMonthlyData, http.MethodPost))
 }
 
 // handle function wrapper

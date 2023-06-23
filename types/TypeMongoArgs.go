@@ -33,3 +33,8 @@ type InsertAllArgs struct {
 	MongoArgs
 	SingleTransaction []interface{}
 }
+
+type SelectAllArgs struct {
+	MongoArgs
+	Filter bson.M
+}

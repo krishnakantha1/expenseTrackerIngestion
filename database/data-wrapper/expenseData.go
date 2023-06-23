@@ -1,6 +1,7 @@
 package datawrapper
 
 import (
+	"context"
 	"log"
 	"time"
 
@@ -63,11 +64,44 @@ func UpsertExpenseMessages(db *mongo.Client, expenseMessages []*t.ExpenseMessage
 		argsInsert.SingleTransaction = append(argsInsert.SingleTransaction, bson.D{{Key: "sms", Value: em.RawMessage.Raw}})
 	}
 
-	count, err := da.InsertAll(&argsInsert)
+	_, err := da.InsertAll(&argsInsert)
 	if err != nil {
 		log.Println("err : ", err.Error())
 	}
 
-	log.Println("--- count :", count)
-
 }
+
+func GetExpenseDataByDateRange(db *mongo.Client, startDate time.Time, endDateE time.Time) (*[]t.ExpenseResponse, error) {
+	argsSelectAll := t.SelectAllArgs{
+		MongoArgs: t.MongoArgs{
+			Client:     db,
+			Database:   "ExpenceTracker",
+			Collection: "user_expenses",
+		},
+		Filter: bson.M{
+			"expense_date": bson.M{
+				"$gte": startDate,
+				"$lt":  endDateE,
+			},
+		},
+	}
+
+	cursor, err := da.SelectAll(&argsSelectAll)
+	defer cursor.Close(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+
+	expenses := make([]t.ExpenseResponse, 0, 100)
+
+	for cursor.Next(context.Background()) {
+		expense := t.ExpenseResponse{}
+		cursor.Decode(&expense)
+		expenses = append(expenses, expense)
+	}
+
+	return &expenses, nil
+}
+
+func InsertSpamRaw() {}

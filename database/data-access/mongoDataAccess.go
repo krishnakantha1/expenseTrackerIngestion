@@ -65,23 +65,10 @@ func InsertAll(args *t.InsertAllArgs) (int64, error) {
 	return int64(len(result.InsertedIDs)), err
 }
 
-// func Select(client *mongo.Client, database string, collection string) {
-// 	Collection := client.Database(database).Collection(collection)
+func SelectAll(args *t.SelectAllArgs) (*mongo.Cursor, error) {
+	collection := args.Client.Database(args.Database).Collection(args.Collection)
 
-// 	cur, err := Collection.Find(context.Background(), bson.D{{Key: "user_id", Value: 1234}})
-// 	if err != nil {
-// 		log.Fatal("Error in mongoDB/mongoDataAccess.go SelectOne : ", err)
-// 	}
-// 	defer cur.Close(context.Background())
+	cursor, err := collection.Find(context.Background(), args.Filter)
 
-// 	for cur.Next(context.Background()) {
-// 		data := struct {
-// 			Uid  int    `bson:"user_id"`
-// 			Bank string `bson:"bank"`
-// 		}{}
-
-// 		cur.Decode(&data)
-
-// 		fmt.Println(data.Uid, data.Bank)
-// 	}
-// }
+	return cursor, err
+}
