@@ -1,6 +1,7 @@
 package datawrapper
 
 import (
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -62,5 +63,6 @@ func UpsertExpenseMessages(db *mongo.Client, expenseMessages []*t.ExpenseMessage
 		argsInsert.SingleTransaction = append(argsInsert.SingleTransaction, bson.D{{Key: "sms", Value: em.RawMessage.Raw}})
 	}
 
-	da.InsertAll(&argsInsert)
+	_, err := da.InsertAll(&argsInsert)
+	log.Println("err : ", err.Error())
 }
