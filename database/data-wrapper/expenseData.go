@@ -1,7 +1,6 @@
 package datawrapper
 
 import (
-	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,7 +12,7 @@ import (
 )
 
 func UpsertExpenseMessages(db *mongo.Client, expenseMessages []*t.ExpenseMessage, id primitive.ObjectID) {
-	args := t.UpsertAllArgs{
+	argsUpsert := t.UpsertAllArgs{
 		MongoArgs: t.MongoArgs{
 			Client:     db,
 			Database:   "ExpenceTracker",
@@ -30,7 +29,7 @@ func UpsertExpenseMessages(db *mongo.Client, expenseMessages []*t.ExpenseMessage
 			URI:             em.ExpsenseEntry.URI,
 			Bank:            em.ExpsenseEntry.Bank,
 			AmountEncrypted: em.ExpsenseEntry.EncryptedAmount,
-			ExpenseDate:     time.Unix(0, em.ExpsenseEntry.ExpenseDate),
+			ExpenseDate:     time.Unix((int64(em.ExpsenseEntry.ExpenseDate) / 1000), ((int64(em.ExpsenseEntry.ExpenseDate) % 1000) * 1000_000)),
 			UpdatedOn:       time.Now(),
 			ExpenseType:     em.ExpsenseEntry.ExpenseType,
 			ExpenseTag:      em.ExpsenseEntry.ExpenseTag,
@@ -38,17 +37,30 @@ func UpsertExpenseMessages(db *mongo.Client, expenseMessages []*t.ExpenseMessage
 	}
 
 	for i, em := range expsenseModels {
-		args.SingleTransaction = append(args.SingleTransaction, make(map[string]bson.M))
+		argsUpsert.SingleTransaction = append(argsUpsert.SingleTransaction, make(map[string]bson.M))
 
-		args.SingleTransaction[i]["updateValues"] = bson.M{"$set": bson.M{"user_id": em.UserID, "uri": em.URI,
+		argsUpsert.SingleTransaction[i]["updateValues"] = bson.M{"$set": bson.M{"user_id": em.UserID, "uri": em.URI,
 			"bank": em.Bank, "amount_encrypted": em.AmountEncrypted,
 			"expense_date": em.ExpenseDate, "updated_on": em.UpdatedOn,
 			"expense_type": em.ExpenseType, "tag": em.ExpenseTag}}
 
-		args.SingleTransaction[i]["filter"] = bson.M{"user_id": em.UserID, "uri": em.URI}
+		argsUpsert.SingleTransaction[i]["filter"] = bson.M{"user_id": em.UserID, "uri": em.URI}
 	}
 
-	count, err := da.UpsertAll(&args)
+	da.UpsertAll(&argsUpsert)
 
-	log.Println("saved : ", count, "err : ", err)
+	argsInsert := t.InsertAllArgs{
+		MongoArgs: t.MongoArgs{
+			Client:     db,
+			Database:   "ExpenceTracker",
+			Collection: "raw",
+		},
+		SingleTransaction: make([]interface{}, 0, len(expenseMessages)),
+	}
+
+	for _, em := range expenseMessages {
+		argsInsert.SingleTransaction = append(argsInsert.SingleTransaction, bson.D{{Key: "sms", Value: em.RawMessage.Raw}})
+	}
+
+	da.InsertAll(&argsInsert)
 }

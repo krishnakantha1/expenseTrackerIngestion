@@ -57,6 +57,14 @@ func UpsertAll(args *t.UpsertAllArgs) (int64, error) {
 	return result.InsertedCount + result.UpsertedCount, nil
 }
 
+func InsertAll(args *t.InsertAllArgs) (int64, error) {
+	collection := args.Client.Database(args.Database).Collection(args.Collection)
+
+	result, err := collection.InsertMany(context.Background(), args.SingleTransaction)
+
+	return int64(len(result.InsertedIDs)), err
+}
+
 // func Select(client *mongo.Client, database string, collection string) {
 // 	Collection := client.Database(database).Collection(collection)
 
