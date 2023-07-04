@@ -1,8 +1,8 @@
 package types
 
 type ExpenseMessage struct {
-	ExpsenseEntry ExpsenseEntry `json:"expenseEntry"`
-	RawMessage    RawMessage    `json:"rawMessage"`
+	ExpsenseEntry *ExpsenseEntry `json:"expenseEntry"`
+	RawMessage    *RawMessage    `json:"rawMessage"`
 }
 
 type ExpsenseEntry struct {

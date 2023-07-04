@@ -51,14 +51,15 @@ func UpsertExpenseMessages(db *mongo.Client, expenseMessages []*t.ExpenseMessage
 
 	da.UpsertAll(&argsUpsert)
 
-	rawMessages := make([]*t.RawMessage, len(expenseMessages))
+	rawMessages := make([]*t.RawMessage, 0, len(expenseMessages))
 	for _, em := range expenseMessages {
-		rawMessages = append(rawMessages, &em.RawMessage)
+		rawMessages = append(rawMessages, em.RawMessage)
 	}
 	log.Println(rawMessages)
 	InsertRawMessages(db, rawMessages, "VALID")
 }
 
+// Handler to insert raw messages to mongo db
 func InsertRawMessages(db *mongo.Client, rawMessages []*t.RawMessage, rawtype string) {
 	argsInsert := t.InsertAllArgs{
 		MongoArgs: t.MongoArgs{
