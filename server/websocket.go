@@ -21,6 +21,13 @@ func (s *Server) handleWebsocketRequest() {
 		ser.ServeHTTP(w, req)
 	})
 
+	http.HandleFunc("/ws/ingestSpams", func(w http.ResponseWriter, req *http.Request) {
+		ser := websocket.Server{
+			Handler: websocket.Handler(s.handleRequest(wsh.IngestSpamMsgReadLoop)),
+		}
+		ser.ServeHTTP(w, req)
+	})
+
 }
 
 func (s *Server) handleRequest(f WSHandlerFunc) websocket.Handler {
