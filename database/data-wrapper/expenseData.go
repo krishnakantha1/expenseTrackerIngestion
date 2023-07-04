@@ -55,6 +55,7 @@ func UpsertExpenseMessages(db *mongo.Client, expenseMessages []*t.ExpenseMessage
 	for _, em := range expenseMessages {
 		rawMessages = append(rawMessages, &em.RawMessage)
 	}
+	log.Println(rawMessages)
 	InsertRawMessages(db, rawMessages, "VALID")
 }
 
