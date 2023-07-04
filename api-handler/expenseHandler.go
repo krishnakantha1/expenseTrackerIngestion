@@ -23,6 +23,13 @@ func HandleGetMonthlyData(db *mongo.Client, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	userData, err := util.DecodeJWT(req.JWT)
+
+	if err != nil {
+		util.BadRequestResponse(w, err.Error())
+		return
+	}
+
 	startYear, startMonth, err := util.GetYearMonth(req.Date)
 
 	if err != nil {
@@ -40,7 +47,7 @@ func HandleGetMonthlyData(db *mongo.Client, w http.ResponseWriter, r *http.Reque
 
 	endDateE := startDate.AddDate(0, 1, 0)
 
-	expenses, err := dw.GetExpenseDataByDateRange(db, startDate, endDateE)
+	expenses, err := dw.GetExpenseDataByDateRange(db, startDate, endDateE, userData.ID)
 
 	if err != nil {
 		util.BadRequestResponse(w, "issue while reading data")

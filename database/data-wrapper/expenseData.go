@@ -51,27 +51,34 @@ func UpsertExpenseMessages(db *mongo.Client, expenseMessages []*t.ExpenseMessage
 
 	da.UpsertAll(&argsUpsert)
 
+	rawMessages := make([]*t.RawMessage, len(expenseMessages))
+	for _, em := range expenseMessages {
+		rawMessages = append(rawMessages, &em.RawMessage)
+	}
+	InsertRawMessages(db, rawMessages, "VALID")
+}
+
+func InsertRawMessages(db *mongo.Client, rawMessages []*t.RawMessage, rawtype string) {
 	argsInsert := t.InsertAllArgs{
 		MongoArgs: t.MongoArgs{
 			Client:     db,
 			Database:   "ExpenceTracker",
 			Collection: "raw",
 		},
-		SingleTransaction: make([]interface{}, 0, len(expenseMessages)),
+		SingleTransaction: make([]interface{}, 0, len(rawMessages)),
 	}
 
-	for _, em := range expenseMessages {
-		argsInsert.SingleTransaction = append(argsInsert.SingleTransaction, bson.D{{Key: "sms", Value: em.RawMessage.Raw}})
+	for _, rm := range rawMessages {
+		argsInsert.SingleTransaction = append(argsInsert.SingleTransaction, bson.D{{Key: "sms", Value: rm.Raw}, {Key: "type", Value: rawtype}})
 	}
 
 	_, err := da.InsertAll(&argsInsert)
 	if err != nil {
 		log.Println("err : ", err.Error())
 	}
-
 }
 
-func GetExpenseDataByDateRange(db *mongo.Client, startDate time.Time, endDateE time.Time) (*[]t.ExpenseResponse, error) {
+func GetExpenseDataByDateRange(db *mongo.Client, startDate time.Time, endDateE time.Time, userId primitive.ObjectID) (*[]t.ExpenseResponse, error) {
 	argsSelectAll := t.SelectAllArgs{
 		MongoArgs: t.MongoArgs{
 			Client:     db,
@@ -79,6 +86,7 @@ func GetExpenseDataByDateRange(db *mongo.Client, startDate time.Time, endDateE t
 			Collection: "user_expenses",
 		},
 		Filter: bson.M{
+			"user_id": userId,
 			"expense_date": bson.M{
 				"$gte": startDate,
 				"$lt":  endDateE,
@@ -87,7 +95,12 @@ func GetExpenseDataByDateRange(db *mongo.Client, startDate time.Time, endDateE t
 	}
 
 	cursor, err := da.SelectAll(&argsSelectAll)
-	defer cursor.Close(context.Background())
+	defer func() {
+		err := cursor.Close(context.Background())
+		if err != nil {
+			log.Println("error while closing db cursor", err)
+		}
+	}()
 
 	if err != nil {
 		return nil, err

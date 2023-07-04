@@ -54,7 +54,6 @@ func IngestExpenseReadLoop(db *mongo.Client, ws *websocket.Conn) {
 		switch state {
 		case STATE_START:
 			if event == CLIENT_START_MSG {
-				log.Println("in start")
 				state = STATE_NOM
 				messageCount = 0
 				curCount = 0
@@ -75,7 +74,6 @@ func IngestExpenseReadLoop(db *mongo.Client, ws *websocket.Conn) {
 		case STATE_NOM:
 			if event == CLIENT_NOM_MSG {
 				messageCount, err = util.ParseCount(msg)
-				log.Println("in nom", messageCount)
 
 				if err != nil {
 					util.HandleStateMisMatch(ws)
@@ -92,8 +90,7 @@ func IngestExpenseReadLoop(db *mongo.Client, ws *websocket.Conn) {
 
 		case STATE_READ_ENTRY:
 			if event == CLIENT_READ_ENTRY {
-				log.Println("in client read", curCount, msg)
-				expenseMessages = append(expenseMessages, util.ParseExpenseMessaeg(msg))
+				expenseMessages = append(expenseMessages, util.ParseExpenseMessage(msg))
 
 				ws.Write([]byte(fmt.Sprintf("%s %d", ACK_READ_ENTRY, curCount)))
 				curCount++
@@ -110,7 +107,6 @@ func IngestExpenseReadLoop(db *mongo.Client, ws *websocket.Conn) {
 
 		case STATE_SAVE_DONE:
 			if event == ACK_SAVE_DONE {
-				log.Println("save ack by client")
 				return
 			} else {
 				util.HandleStateMisMatch(ws)
